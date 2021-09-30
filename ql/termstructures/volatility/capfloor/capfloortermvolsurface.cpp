@@ -19,7 +19,8 @@
 */
 
 #include <ql/termstructures/volatility/capfloor/capfloortermvolsurface.hpp>
-#include <ql/math/interpolations/bicubicsplineinterpolation.hpp>
+#include <ql/math/interpolations/bilinearinterpolation.hpp>
+#include <ql/math/interpolations/flatextrapolation2d.hpp>
 #include <ql/utilities/dataformatters.hpp>
 #include <ql/quotes/simplequote.hpp>
 
@@ -185,11 +186,12 @@ namespace QuantLib {
 
     void CapFloorTermVolSurface::interpolate()
     {
-        interpolation_ = BicubicSpline(strikes_.begin(),
-                                       strikes_.end(),
-                                       optionTimes_.begin(),
-                                       optionTimes_.end(),
-                                       vols_);
+		boost::shared_ptr<Interpolation2D> interp(new BilinearInterpolation(strikes_.begin(),
+			strikes_.end(),
+			optionTimes_.begin(),
+			optionTimes_.end(),
+			vols_));
+		interpolation_ = FlatExtrapolator2D(interp);
     }
 
     void CapFloorTermVolSurface::update()

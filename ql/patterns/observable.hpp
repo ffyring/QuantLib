@@ -64,10 +64,12 @@ namespace QuantLib {
 
         bool updatesEnabled()  {return updatesEnabled_;}
         bool updatesDeferred() {return updatesDeferred_;}
+		bool registerEnabled() { return registerEnabled_; }
       private:
         ObservableSettings()
-        : updatesEnabled_(true),
-          updatesDeferred_(false) {}
+        : updatesEnabled_(false),
+          updatesDeferred_(false),
+		  registerEnabled_(false) {}
 
         void registerDeferredObservers(
             const boost::unordered_set<Observer*>& observers);
@@ -77,7 +79,7 @@ namespace QuantLib {
         typedef set_type::iterator iterator;
         set_type deferredObservers_;
 
-        bool updatesEnabled_,  updatesDeferred_;
+        bool updatesEnabled_,  updatesDeferred_, registerEnabled_;
     };
 
     //! Object that notifies its changes to a set of observers
@@ -179,7 +181,11 @@ namespace QuantLib {
 
     inline std::pair<boost::unordered_set<Observer*>::iterator, bool>
     Observable::registerObserver(Observer* o) {
-        return observers_.insert(o);
+		if (ObservableSettings::instance().registerEnabled())
+		{
+			return observers_.insert(o);
+		}
+		return std::make_pair(observers_.end(), false);
     }
 
     inline Size Observable::unregisterObserver(Observer* o) {
@@ -213,7 +219,7 @@ namespace QuantLib {
 
     inline std::pair<Observer::iterator, bool>
     Observer::registerWith(const boost::shared_ptr<Observable>& h) {
-        if (h) {
+        if (ObservableSettings::instance().registerEnabled() && h) {
             h->registerObserver(this);
             return observables_.insert(h);
         }

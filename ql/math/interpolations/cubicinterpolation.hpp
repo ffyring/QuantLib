@@ -330,6 +330,19 @@ namespace QuantLib {
         }
         static const bool global = true;
         static const Size requiredPoints = 2;
+
+		void setLeftBoundaryConditionTypeAndValue(CubicInterpolation::BoundaryCondition type, Real value)
+		{
+			leftType_ = type;
+			leftValue_ = value;
+		}
+
+		void setRightBoundaryConditionTypeAndValue(CubicInterpolation::BoundaryCondition type, Real value)
+		{
+			rightType_ = type;
+			rightValue_ = value;
+		}
+
       private:
         CubicInterpolation::DerivativeApprox da_;
         bool monotonic_;

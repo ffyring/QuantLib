@@ -30,6 +30,7 @@
 #include <ql/termstructures/localbootstrap.hpp>
 #include <ql/termstructures/yield/bootstraptraits.hpp>
 #include <ql/patterns/lazyobject.hpp>
+#include <ql/indexes/iborindex.hpp>
 
 namespace QuantLib {
 
@@ -155,6 +156,19 @@ namespace QuantLib {
           accuracy_(1.0e-12), bootstrap_(bootstrap) {
             bootstrap_.setup(this);
         }
+        PiecewiseYieldCurve(const Handle<YieldTermStructure>& originalCurve,
+							const std::vector<boost::shared_ptr<typename Traits::helper> >& instruments,
+							const DayCounter& dayCounter,
+                            const std::vector<Handle<Quote> >& jumps = std::vector<Handle<Quote> >(),
+                            const std::vector<Date>& jumpDates = std::vector<Date>(),
+							Real accuracy = 1.0e-12,
+                            const Interpolator& i = Interpolator(),
+							const Bootstrap<this_curve>& bootstrap = Bootstrap<this_curve>())
+        : base_curve(originalCurve, i, dayCounter, jumps, jumpDates),
+          instruments_(instruments),
+          accuracy_(accuracy), bootstrap_(bootstrap) {
+            bootstrap_.setup(this);
+        }
         //@}
         //! \name TermStructure interface
         //@{
@@ -170,8 +184,43 @@ namespace QuantLib {
         //! \name Observer interface
         //@{
         void update();
-        //@}
+        //@}    
+        // START:SWEDBANKLIBEXTENSION
+        PiecewiseYieldCurve(const Handle<IborIndex> & iborIndex,
+                            const Handle<YieldTermStructure>& firstCurve,
+                            const std::vector<boost::shared_ptr<typename Traits::helper> >& instruments,
+                            const std::vector<Handle<Quote> >& jumps = std::vector<Handle<Quote> >(),
+                            const std::vector<Date>& jumpDates = std::vector<Date>(),
+                            Real accuracy = 1.0e-12,
+                            const Interpolator& i = Interpolator(),
+                            const Bootstrap<this_curve>& bootstrap = Bootstrap<this_curve>())
+        : base_curve(firstCurve, iborIndex, i,jumps, jumpDates),
+                            instruments_(instruments),
+                            accuracy_(accuracy), bootstrap_(bootstrap) 
+        {
+            bootstrap_.setup(this);
+        }
+
+        bool isForwardRateTermStructure() const
+        {
+            return base_curve::isForwardRateTermStructure();
+        }
+        
+        void setInitialGuesses(const std::vector<Real> & guesses)
+        {
+            bootstrap_.setInitialGuesses(guesses);
+        }
+
+		const std::vector<boost::shared_ptr<typename Traits::helper>> & instruments()
+		{
+			return instruments_;
+		}
+        // END:SWEDBANKLIBEXTENSION
       private:
+        // START:SWEDBANKLIBEXTENSION
+        Rate forwardRateImpl(const Date & fixingDate) const;
+        // END:SWEDBANKLIBEXTENSION
+
         //! \name LazyObject interface
         //@{
         void performCalculations() const;
@@ -246,6 +295,15 @@ namespace QuantLib {
         calculate();
         return base_curve::discountImpl(t);
     }
+
+	// START:SWEDBANKLIBEXTENSION
+    template <class C, class I, template <class> class B>
+    inline
+        DiscountFactor PiecewiseYieldCurve<C, I, B>::forwardRateImpl(const Date& fixingDate) const {
+        calculate();
+        return base_curve::forwardRateImpl(fixingDate);
+    }
+	// END:SWEDBANKLIBEXTENSION
 
     template <class C, class I, template <class> class B>
     inline void PiecewiseYieldCurve<C,I,B>::performCalculations() const {

@@ -45,6 +45,14 @@ namespace QuantLib {
         IterativeBootstrap();
         void setup(Curve* ts);
         void calculate() const;
+
+        // START:SWEDBANKLIBEXTENSION
+        void setInitialGuesses(const std::vector<Real> & guesses)
+        {
+            QL_FAIL("Not implemented");
+        }
+        // END:SWEDBANKLIBEXTENSION
+
       private:
         void initialize() const;
         Curve* ts_;
@@ -69,18 +77,17 @@ namespace QuantLib {
     void IterativeBootstrap<Curve>::setup(Curve* ts) {
 
         ts_ = ts;
-        n_ = ts_->instruments_.size();
-        QL_REQUIRE(n_ > 0, "no bootstrap helpers given")
-        for (Size j=0; j<n_; ++j)
-            ts_->registerWith(ts_->instruments_[j]);
-
+		n_ = ts_->instruments_.size();
         // do not initialize yet: instruments could be invalid here
         // but valid later when bootstrapping is actually required
     }
 
     template <class Curve>
     void IterativeBootstrap<Curve>::initialize() const {
-        // ensure helpers are sorted
+		QL_REQUIRE(n_ > 0, "no bootstrap helpers given");
+		for (Size j = 0; j<n_; ++j)
+			ts_->registerWith(ts_->instruments_[j]);
+		// ensure helpers are sorted
         std::sort(ts_->instruments_.begin(), ts_->instruments_.end(),
                   detail::BootstrapHelperSorter());
         // skip expired helpers
@@ -158,7 +165,9 @@ namespace QuantLib {
         // anyway it makes little sense to use date relative helpers with a
         // non-moving curve if the evaluation date changes
         if (!initialized_ || ts_->moving_)
+        {
             initialize();
+        }
 
         // setup helpers
         for (Size j=firstAliveHelper_; j<n_; ++j) {

@@ -59,7 +59,10 @@ namespace QuantLib {
                                             index_->forwardingTermStructure();
 
         Date paymentDate = coupon.date();
-        if (paymentDate > rateCurve->referenceDate())
+        // START: SWEDBANKLIBEXTENSION
+		// if (paymentDate > rateCurve->referenceDate())
+        if (paymentDate > rateCurve->referenceDate() && !rateCurve->isForwardRateTermStructure())
+        // END: SWEDBANKLIBEXTENSION
             discount_ = rateCurve->discount(paymentDate);
         else
             discount_ = 1.0;

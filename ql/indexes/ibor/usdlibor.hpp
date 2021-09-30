@@ -27,6 +27,7 @@
 
 #include <ql/indexes/ibor/libor.hpp>
 #include <ql/time/calendars/unitedstates.hpp>
+#include <ql/time/calendars/nullcalendar.hpp>
 #include <ql/time/daycounters/actual360.hpp>
 #include <ql/currencies/america.hpp>
 
@@ -45,7 +46,7 @@ namespace QuantLib {
         : Libor("USDLibor", tenor,
                 2,
                 USDCurrency(),
-                UnitedStates(UnitedStates::Settlement),
+                NullCalendar(),
                 Actual360(), h) {}
     };
 

@@ -49,7 +49,7 @@ namespace QuantLib {
       gearing_(gearing), spread_(spread),
       isInArrears_(isInArrears)
     {
-        QL_REQUIRE(gearing_!=0, "Null gearing not allowed");
+        //QL_REQUIRE(gearing_!=0, "Null gearing not allowed");
 
         if (dayCounter_.empty())
             dayCounter_ = index_->dayCounter();

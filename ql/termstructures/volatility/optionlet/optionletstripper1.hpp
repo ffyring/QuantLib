@@ -65,7 +65,7 @@ namespace QuantLib {
         //@{
         void performCalculations() const;
         //@}
-      private:
+      protected:
         mutable Matrix capFloorPrices_, optionletPrices_;
         mutable Matrix capFloorVols_;
         mutable Matrix optionletStDevs_, capletVols_;

@@ -63,6 +63,16 @@ namespace QuantLib {
         }
         static const bool global = false;
         static const Size requiredPoints = 2;
+
+		void setLeftBoundaryConditionTypeAndValue(CubicInterpolation::BoundaryCondition type, Real value)
+		{
+			QL_FAIL("LogLinear::setLeftBoundaryConditionTypeAndValue(): Not defined.");
+		}
+
+		void setRightBoundaryConditionTypeAndValue(CubicInterpolation::BoundaryCondition type, Real value)
+		{
+			QL_FAIL("LogLinear::setRightBoundaryConditionTypeAndValue(): Not defined.");
+		}
     };
 
     //! %log-cubic interpolation between discrete points
@@ -114,6 +124,19 @@ namespace QuantLib {
         }
         static const bool global = true;
         static const Size requiredPoints = 2;
+
+		void setLeftBoundaryConditionTypeAndValue(CubicInterpolation::BoundaryCondition type, Real value)
+		{
+			leftType_ = type;
+			leftValue_ = value;
+		}
+
+		void setRightBoundaryConditionTypeAndValue(CubicInterpolation::BoundaryCondition type, Real value)
+		{
+			rightType_ = type;
+			rightValue_ = value;
+		}
+
       private:
         CubicInterpolation::DerivativeApprox da_;
         bool monotonic_;

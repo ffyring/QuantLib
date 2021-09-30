@@ -87,6 +87,10 @@ namespace QuantLib {
         */
         virtual Date earliestDate() const;
 
+		// START:SWEDBANKLIBEXTENSION
+        virtual Date lastFixingDate() const;
+		// END:SWEDBANKLIBEXTENSION
+
         //! instrument's maturity date
         virtual Date maturityDate() const;
 
@@ -118,6 +122,9 @@ namespace QuantLib {
         TS* termStructure_;
         Date earliestDate_, latestDate_;
         Date maturityDate_, latestRelevantDate_, pillarDate_;
+		// START:SWEDBANKLIBEXTENSION
+        Date lastFixingDate_;
+		// END:SWEDBANKLIBEXTENSION
     };
 
     //! Bootstrap helper with date schedule relative to global evaluation date
@@ -167,6 +174,13 @@ namespace QuantLib {
     Date BootstrapHelper<TS>::earliestDate() const {
         return earliestDate_;
     }
+
+	// START:SWEDBANKLIBEXTENSION
+    template <class TS>
+    Date BootstrapHelper<TS>::lastFixingDate() const {
+        return lastFixingDate_;
+    }
+	// END:SWEDBANKLIBEXTENSION
 
     template <class TS>
     Date BootstrapHelper<TS>::maturityDate() const {

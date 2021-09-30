@@ -40,6 +40,14 @@ namespace QuantLib {
       }
 
     Rate IborIndex::forecastFixing(const Date& fixingDate) const {
+        QL_REQUIRE(!termStructure_.empty(),
+            "null term structure set to this instance of " << name());
+
+        // START:SWEDBANKLIBEXTENSION
+        if (termStructure_->isForwardRateTermStructure())
+            return termStructure_->forwardRate(fixingDate);
+        // END:SWEDBANKLIBEXTENSION
+
         Date d1 = valueDate(fixingDate);
         Date d2 = maturityDate(d1);
         Time t = dayCounter_.yearFraction(d1, d2);

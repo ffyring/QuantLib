@@ -71,7 +71,7 @@ namespace QuantLib {
         const std::vector<Date>& dates() const;
         const std::vector<Real>& data() const;
         const std::vector<DiscountFactor>& discounts() const;
-        std::vector<std::pair<Date, Real> > nodes() const;
+        std::vector<std::pair<Date, Real>> nodes() const;
         //@}
       protected:
         InterpolatedDiscountCurve(
@@ -97,8 +97,11 @@ namespace QuantLib {
         DiscountFactor discountImpl(Time) const;
         //@}
         mutable std::vector<Date> dates_;
+		// START:SWEDBANKLIBEXTENSION
+		//moved from private to protected to be acessable in child classes, added const to be used in Lazy
+		void initialize() const;
+		// END:SWEDBANKLIBEXTENSION
       private:
-        void initialize();
     };
 
     //! Term structure based on log-linear interpolation of discount factors
@@ -244,7 +247,7 @@ namespace QuantLib {
     #endif
 
     template <class T>
-    void InterpolatedDiscountCurve<T>::initialize()
+    void InterpolatedDiscountCurve<T>::initialize() const
     {
         QL_REQUIRE(dates_.size() >= T::requiredPoints,
                    "not enough input dates given");

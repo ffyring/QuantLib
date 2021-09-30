@@ -79,7 +79,7 @@ namespace QuantLib {
 
     FixedRateLeg::FixedRateLeg(const Schedule& schedule)
     : schedule_(schedule), calendar_(schedule.calendar()),
-      paymentAdjustment_(Following) {}
+      paymentAdjustment_(Following), paymentLag_(0) {}
 
     FixedRateLeg& FixedRateLeg::withNotionals(Real notional) {
         notionals_ = vector<Real>(1,notional);
@@ -128,6 +128,12 @@ namespace QuantLib {
         return *this;
     }
 
+    FixedRateLeg& FixedRateLeg::withPaymentLag(Integer lag)
+    {
+        paymentLag_ = lag;
+        return *this;
+    }
+
     FixedRateLeg& FixedRateLeg::withFirstPeriodDayCounter(
                                                const DayCounter& dayCounter) {
         firstPeriodDC_ = dayCounter;
@@ -163,7 +169,7 @@ namespace QuantLib {
 
         // first period might be short or long
         Date start = schedule_.date(0), end = schedule_.date(1);
-        Date paymentDate = calendar_.adjust(end, paymentAdjustment_);
+        Date paymentDate = calendar_.advance(end, paymentLag_, Days, paymentAdjustment_);
         Date exCouponDate;
         InterestRate rate = couponRates_[0];
         Real nominal = notionals_[0];
@@ -199,7 +205,7 @@ namespace QuantLib {
         // regular periods
         for (Size i=2; i<schedule_.size()-1; ++i) {
             start = end; end = schedule_.date(i);
-            paymentDate = calendar_.adjust(end, paymentAdjustment_);
+            paymentDate = calendar_.advance(end, paymentLag_, Days, paymentAdjustment_);
             if (exCouponPeriod_ != Period())
             {
                 exCouponDate = exCouponCalendar_.advance(paymentDate,
@@ -223,7 +229,7 @@ namespace QuantLib {
             // last period might be short or long
             Size N = schedule_.size();
             start = end; end = schedule_.date(N-1);
-            paymentDate = calendar_.adjust(end, paymentAdjustment_);
+            paymentDate = calendar_.advance(end, paymentLag_, Days, paymentAdjustment_);
             if (exCouponPeriod_ != Period())
             {
                 exCouponDate = exCouponCalendar_.advance(paymentDate,

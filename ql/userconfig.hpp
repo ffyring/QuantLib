@@ -38,7 +38,7 @@
 
 /* Define this if error messages should include file and line information. */
 #ifndef QL_ERROR_LINES
-//#   define QL_ERROR_LINES
+#   define QL_ERROR_LINES
 #endif
 
 /* Define this if tracing messages should be allowed (whether they are
@@ -61,7 +61,7 @@
 /* Define this to use indexed coupons instead of par coupons in floating
    legs. */
 #ifndef QL_USE_INDEXED_COUPON
-//#   define QL_USE_INDEXED_COUPON
+#   define QL_USE_INDEXED_COUPON
 #endif
 
 /* Define this to have singletons return different instances for

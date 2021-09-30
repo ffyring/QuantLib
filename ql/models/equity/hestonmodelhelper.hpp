@@ -53,6 +53,15 @@ namespace QuantLib {
                           CalibrationHelper::CalibrationErrorType errorType
                                     = CalibrationHelper::RelativePriceError);
 
+        HestonModelHelper(const Date& maturity,
+                          const Real s0,
+                          const Real strikePrice,
+                          const Handle<Quote>& volatility,
+                          const Handle<YieldTermStructure>& riskFreeRate,
+                          const Handle<YieldTermStructure>& dividendYield,
+                          CalibrationHelper::CalibrationErrorType errorType
+                                    = CalibrationHelper::RelativePriceError);
+
         void addTimesTo(std::list<Time>&) const {}
         void performCalculations() const;
         Real modelValue() const;

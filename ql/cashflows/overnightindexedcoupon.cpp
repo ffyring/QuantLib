@@ -179,7 +179,8 @@ namespace QuantLib {
 
     OvernightLeg::OvernightLeg(const Schedule& schedule,
                                const shared_ptr<OvernightIndex>& i)
-    : schedule_(schedule), overnightIndex_(i), paymentAdjustment_(Following) {}
+    : schedule_(schedule), overnightIndex_(i), paymentAdjustment_(Following),
+      paymentLag_(0) {}
 
     OvernightLeg& OvernightLeg::withNotionals(Real notional) {
         notionals_ = vector<Real>(1, notional);
@@ -199,6 +200,11 @@ namespace QuantLib {
     OvernightLeg&
     OvernightLeg::withPaymentAdjustment(BusinessDayConvention convention) {
         paymentAdjustment_ = convention;
+        return *this;
+    }
+
+    OvernightLeg& OvernightLeg::withPaymentLag(Integer lag) {
+        paymentLag_ = lag;
         return *this;
     }
 
@@ -238,7 +244,7 @@ namespace QuantLib {
         for (Size i=0; i<n; ++i) {
             refStart = start = schedule_.date(i);
             refEnd   =   end = schedule_.date(i+1);
-            paymentDate = calendar.adjust(end, paymentAdjustment_);
+            paymentDate = calendar.advance(end, paymentLag_, Days, paymentAdjustment_);
             if (i == 0 && !schedule_.isRegular(i+1))
                 refStart = calendar.adjust(end - schedule_.tenor(),
                                            paymentAdjustment_);

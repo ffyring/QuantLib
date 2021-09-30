@@ -234,6 +234,12 @@ namespace QuantLib {
 #endif
 
         //@}
+      
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version)
+        {
+            ar & serialNumber_;
+        }
 
       private:
         static BigInteger minimumSerialNumber();

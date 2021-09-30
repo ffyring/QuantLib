@@ -90,9 +90,17 @@ namespace QuantLib {
         Date today = Settings::instance().evaluationDate();
 
         if (fixingDate_>today)
-            return iborIndex_->forecastFixing(fixingValueDate_,
-                                              fixingEndDate_,
-                                              spanningTime_);
+        { 
+            // START:SWEDBANKLIBEXTENSION
+            if(iborIndex_->termStructure_->isForwardRateTermStructure())
+                return iborIndex_->fixing(fixingDate_);        
+            else
+                return iborIndex_->forecastFixing(fixingValueDate_,
+                    fixingEndDate_,
+                    spanningTime_);
+            // END:SWEDBANKLIBEXTENSION
+        }
+            
 
         if (fixingDate_<today ||
             Settings::instance().enforcesTodaysHistoricFixings()) {
@@ -112,9 +120,16 @@ namespace QuantLib {
         } catch (Error&) {
                 ;   // fall through and forecast
         }
-        return iborIndex_->forecastFixing(fixingValueDate_,
-                                          fixingEndDate_,
-                                          spanningTime_);
+
+        // START:SWEDBANKLIBEXTENSION
+        if (iborIndex_->termStructure_->isForwardRateTermStructure())
+            return iborIndex_->fixing(fixingDate_);
+        else
+            return iborIndex_->forecastFixing(fixingValueDate_,
+                fixingEndDate_,
+                spanningTime_);
+
+        // END:SWEDBANKLIBEXTENSION
     }
 
     void IborCoupon::accept(AcyclicVisitor& v) {
@@ -132,7 +147,7 @@ namespace QuantLib {
                      const shared_ptr<IborIndex>& index)
     : schedule_(schedule), index_(index),
       paymentAdjustment_(Following),
-      inArrears_(false), zeroPayments_(false) {}
+      inArrears_(false), zeroPayments_(false), paymentLag_(0) {}
 
     IborLeg& IborLeg::withNotionals(Real notional) {
         notionals_ = std::vector<Real>(1,notional);
@@ -214,12 +229,17 @@ namespace QuantLib {
         return *this;
     }
 
+    IborLeg& IborLeg::withPaymentLag(Integer lag) {
+        paymentLag_ = lag;
+        return *this;
+    }
+
     IborLeg::operator Leg() const {
 
         Leg leg = FloatingLeg<IborIndex, IborCoupon, CappedFlooredIborCoupon>(
                          schedule_, notionals_, index_, paymentDayCounter_,
                          paymentAdjustment_, fixingDays_, gearings_, spreads_,
-                         caps_, floors_, inArrears_, zeroPayments_);
+                         caps_, floors_, inArrears_, zeroPayments_, paymentLag_);
 
         if (caps_.empty() && floors_.empty() && !inArrears_) {
             shared_ptr<IborCouponPricer> pricer(new BlackIborCouponPricer);

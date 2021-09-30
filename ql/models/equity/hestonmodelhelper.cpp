@@ -44,6 +44,8 @@ namespace QuantLib {
       s0_(Handle<Quote>(boost::make_shared<SimpleQuote>(s0))),
       strikePrice_(strikePrice), dividendYield_(dividendYield) {
         registerWith(dividendYield);
+        exerciseDate_ =
+            calendar_.advance(termStructure_->referenceDate(), maturity_);
     }
 
     HestonModelHelper::HestonModelHelper(
@@ -60,11 +62,27 @@ namespace QuantLib {
       strikePrice_(strikePrice), dividendYield_(dividendYield) {
         registerWith(s0);
         registerWith(dividendYield);
-    }
-
-    void HestonModelHelper::performCalculations() const {
         exerciseDate_ =
             calendar_.advance(termStructure_->referenceDate(), maturity_);
+    }
+
+    HestonModelHelper::HestonModelHelper(
+                            const Date& maturity,
+                            const Real s0,
+                            const Real strikePrice,
+                            const Handle<Quote>& volatility,
+                            const Handle<YieldTermStructure>& riskFreeRate,
+                            const Handle<YieldTermStructure>& dividendYield,
+                            CalibrationHelper::CalibrationErrorType errorType)
+    : CalibrationHelper(volatility, riskFreeRate, errorType),
+      s0_(Handle<Quote>(boost::make_shared<SimpleQuote>(s0))),
+      strikePrice_(strikePrice),
+      dividendYield_(dividendYield)
+	{
+        exerciseDate_ = maturity;
+    }
+    
+    void HestonModelHelper::performCalculations() const {
         tau_ = termStructure_->timeFromReference(exerciseDate_);
         type_ = strikePrice_ * termStructure_->discount(tau_) >=
                         s0_->value() * dividendYield_->discount(tau_)

@@ -82,7 +82,8 @@ namespace QuantLib {
         OvernightLeg& withNotionals(Real notional);
         OvernightLeg& withNotionals(const std::vector<Real>& notionals);
         OvernightLeg& withPaymentDayCounter(const DayCounter&);
-        OvernightLeg& withPaymentAdjustment(BusinessDayConvention);
+        OvernightLeg& withPaymentAdjustment(BusinessDayConvention);        
+        OvernightLeg& withPaymentLag(Integer lag);
         OvernightLeg& withGearings(Real gearing);
         OvernightLeg& withGearings(const std::vector<Real>& gearings);
         OvernightLeg& withSpreads(Spread spread);
@@ -94,6 +95,7 @@ namespace QuantLib {
         std::vector<Real> notionals_;
         DayCounter paymentDayCounter_;
         BusinessDayConvention paymentAdjustment_;
+        Integer paymentLag_;
         std::vector<Real> gearings_;
         std::vector<Spread> spreads_;
     };

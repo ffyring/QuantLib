@@ -150,12 +150,34 @@ namespace QuantLib {
         //@{
         const std::vector<Date>& jumpDates() const;
         const std::vector<Time>& jumpTimes() const;
+        const std::vector<Handle<Quote>>& jumps() const;
         //@}
 
         //! \name Observer interface
         //@{
         void update();
         //@}
+
+        // START:SWEDBANKLIBEXTENSION
+        Rate forwardRate(const Date& fixingDate,
+                         bool extrapolate = false) const
+        {
+            checkRange(timeFromReference(fixingDate), extrapolate);
+            return forwardRateImpl(fixingDate);
+        }
+        
+        virtual bool isForwardRateTermStructure() const
+        {
+            return false;
+        }
+
+        virtual void setInitialGuesses(const std::vector<Real> & guesses)
+        {
+            QL_FAIL("Not allowed");
+        }
+        // END:SWEDBANKLIBEXTENSION
+        
+        void setJumpsAndJumpDates(const std::vector<Handle<Quote>>& jumps, const std::vector<Date>& jumpDates);
       protected:
         /*! \name Calculations
 
@@ -164,6 +186,14 @@ namespace QuantLib {
             range check has already been performed; therefore, it
             must assume that extrapolation is required.
         */
+
+        // START:SWEDBANKLIBEXTENSION
+        virtual Rate forwardRateImpl(const Date& fixingDate) const
+        {
+            QL_FAIL("Not allowed");
+        }
+        // END:SWEDBANKLIBEXTENSION
+
         //@{
         //! discount factor calculation
         virtual DiscountFactor discountImpl(Time) const = 0;
@@ -205,6 +235,9 @@ namespace QuantLib {
         return this->jumpTimes_;
     }
 
+    inline const std::vector<Handle<Quote>>& YieldTermStructure::jumps() const {
+        return this->jumps_;
+    }
 }
 
 #endif

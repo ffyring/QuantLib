@@ -108,7 +108,7 @@ namespace QuantLib {
             // Black Consciousness Day
             || (d == 20 && m == November && y >= 2007)
             // Christmas Eve
-            || (d == 24 && m == December)
+            //|| (d == 24 && m == December)
             // Christmas
             || (d == 25 && m == December)
             // Passion of Christ

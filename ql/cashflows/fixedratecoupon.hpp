@@ -96,6 +96,7 @@ namespace QuantLib {
         FixedRateLeg& withCouponRates(const InterestRate&);
         FixedRateLeg& withCouponRates(const std::vector<InterestRate>&);
         FixedRateLeg& withPaymentAdjustment(BusinessDayConvention);
+        FixedRateLeg& withPaymentLag(Integer lag);
         FixedRateLeg& withFirstPeriodDayCounter(const DayCounter&);
         FixedRateLeg& withPaymentCalendar(const Calendar&);
         FixedRateLeg& withExCouponPeriod(const Period&,
@@ -114,6 +115,7 @@ namespace QuantLib {
         Calendar exCouponCalendar_;
         BusinessDayConvention exCouponAdjustment_;
         bool exCouponEndOfMonth_;
+        Integer paymentLag_;
     };
 
     inline void FixedRateCoupon::accept(AcyclicVisitor& v) {

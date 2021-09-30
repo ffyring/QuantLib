@@ -21,6 +21,7 @@
 
 #include <ql/termstructures/yieldtermstructure.hpp>
 #include <ql/utilities/dataformatters.hpp>
+#include <ql/math/comparison.hpp>
 
 namespace QuantLib {
 
@@ -69,6 +70,25 @@ namespace QuantLib {
             registerWith(jumps_[i]);
     }
 
+    void YieldTermStructure::setJumpsAndJumpDates(const std::vector<Handle<Quote>>& jumps, const std::vector<Date>& jumpDates)
+    {
+        jumps_ = jumps;
+        jumpDates_ = jumpDates;
+        nJumps_ = jumps_.size();
+        QL_REQUIRE(jumpDates_.size() == nJumps_,
+            "mismatch between number of jumps (" << nJumps_ <<
+            ") and jump dates (" << jumpDates_.size() << ")");
+        jumpTimes_.reserve(jumpDates_.size());
+        for (Size i = 0; i < jumpDates_.size(); ++i)
+        {
+            jumpTimes_.push_back(timeFromReference(jumpDates_[i]));
+        }
+        for (Size i = 0; i < nJumps_; ++i)
+        {
+            registerWith(jumps_[i]);
+        }
+    }
+
     void YieldTermStructure::setJumps() {
         if (jumpDates_.empty() && !jumps_.empty()) { // turn of year dates
             jumpDates_.resize(nJumps_);
@@ -95,11 +115,11 @@ namespace QuantLib {
 
         DiscountFactor jumpEffect = 1.0;
         for (Size i=0; i<nJumps_; ++i) {
-            if (jumpTimes_[i]>0 && jumpTimes_[i]<t) {
+            if (jumpTimes_[i]>0 && (jumpTimes_[i] < t || close(jumpTimes_[i]-t, 0.0))) {
                 QL_REQUIRE(jumps_[i]->isValid(),
                            "invalid " << io::ordinal(i+1) << " jump quote");
                 DiscountFactor thisJump = jumps_[i]->value();
-                QL_REQUIRE(thisJump>0.0 && thisJump<=1.0,
+                QL_REQUIRE(thisJump>0.0,
                            "invalid " << io::ordinal(i+1) << " jump value: " <<
                            thisJump);
                 jumpEffect *= thisJump;

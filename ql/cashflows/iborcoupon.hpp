@@ -91,6 +91,7 @@ namespace QuantLib {
         IborLeg& withFloors(const std::vector<Rate>& floors);
         IborLeg& inArrears(bool flag = true);
         IborLeg& withZeroPayments(bool flag = true);
+        IborLeg& withPaymentLag(Integer lag);
         operator Leg() const;
       private:
         Schedule schedule_;
@@ -103,6 +104,7 @@ namespace QuantLib {
         std::vector<Spread> spreads_;
         std::vector<Rate> caps_, floors_;
         bool inArrears_, zeroPayments_;
+        Integer paymentLag_;
     };
 
 }
